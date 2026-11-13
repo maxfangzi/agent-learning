@@ -1,0 +1,6 @@
+.venv/
+pip-*/
+__pycache__/
+.env
+github_search_result.json
+agent_memory.json

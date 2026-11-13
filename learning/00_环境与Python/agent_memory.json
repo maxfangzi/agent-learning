@@ -1,0 +1,14 @@
+[
+  {
+    "role": "user",
+    "content": "我想退款"
+  },
+  {
+    "role": "assistant",
+    "content": "好的，请提供订单号"
+  },
+  {
+    "role": "user",
+    "content": "订单号 A001"
+  }
+]

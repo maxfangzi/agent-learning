@@ -1,0 +1,9 @@
+.env
+resume_extract.txt
+*.pdf
+__pycache__/
+.venv/
+pip-*/
+agent_memory.json
+github_search_result.json
+Agent学习路线与企业级项目方案.md

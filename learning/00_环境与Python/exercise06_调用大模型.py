@@ -17,7 +17,7 @@ api_key = None
 try:
     with open(".env", encoding="utf-8") as f:
         for line in f:
-            if line.startswith("DEEPSEEK_API_KEY="):
+            if line.startswith("MISTRAL_API_KEY="):
                 api_key = line.split("=", 1)[1].strip()
 except FileNotFoundError:
     pass  # 没有 .env 文件时走下面的友好提示
@@ -25,7 +25,7 @@ except FileNotFoundError:
 if not api_key or "在这里" in api_key:
     print("还没配置 Key！请按 DAY4.md 步骤：")
     print('1. 在本文件夹新建文件 .env')
-    print("2. 文件内容写一行： DEEPSEEK_API_KEY=你的真实key")
+    print("2. 文件内容写一行： MISTRAL_API_KEY=你的真实key")
     raise SystemExit(0)   # 缺钥匙就体面退出，不崩
 
 # --- 1) 组装请求：Day 1 学的 messages 格式派上用场了 ---
@@ -34,12 +34,12 @@ messages = [
     {"role": "user", "content": "用一句话解释：什么是 AI Agent？"},
 ]
 
-print("正在调用 DeepSeek API ...")
+print("正在调用 Mistral API ...")
 resp = requests.post(
-    "https://api.deepseek.com/chat/completions",       # DeepSeek 的对话接口
+    "https://api.mistral.ai/v1/chat/completions",      # Mistral 的对话接口（OpenAI 兼容格式）
     headers={"Authorization": f"Bearer {api_key}"},    # 身份凭证放请求头，不放 URL
     json={                                             # json= 参数会自动转成 JSON 并设好头
-        "model": "deepseek-chat",
+        "model": "mistral-small-latest",               # 便宜够用；换 "mistral-large-latest" 更强
         "messages": messages,
         "temperature": 0.7,                            # 0-2，越大越随机
     },
@@ -50,7 +50,7 @@ resp = requests.post(
 if resp.status_code != 200:
     print(f"调用失败，状态码 {resp.status_code}")
     print("API 的报错说明:", resp.text[:300])
-    print("常见原因：key 写错(401) / 余额不足(402) / 网络问题")
+    print("常见原因：key 写错(401) / 没开通付费或免费额度(403) / 网络问题")
     raise SystemExit(0)
 
 data = resp.json()
@@ -62,16 +62,16 @@ print("模型回复:", reply)
 usage = data["usage"]
 print()
 print(f"本次消耗: 输入 {usage['prompt_tokens']} tokens + 输出 {usage['completion_tokens']} tokens")
-print(f"deepseek-chat 价格约每百万输入 0.5 元——这次调用不到 1 分钱")
+print(f"Mistral 定价见 console.mistral.ai → Pricing，这次调用通常不到 1 分钱")
 
 # --- 4) 多轮对话：把模型的回答接回 messages（Day 1 练习 2 的结构）---
 messages.append({"role": "assistant", "content": reply})
 messages.append({"role": "user", "content": "那它和我们平时用的聊天机器人有什么区别？同样一句话概括"})
 
 resp2 = requests.post(
-    "https://api.deepseek.com/chat/completions",
+    "https://api.mistral.ai/v1/chat/completions",
     headers={"Authorization": f"Bearer {api_key}"},
-    json={"model": "deepseek-chat", "messages": messages, "temperature": 0.7},
+    json={"model": "mistral-small-latest", "messages": messages, "temperature": 0.7},
     timeout=60,
 )
 print()
